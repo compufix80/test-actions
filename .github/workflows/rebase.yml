@@ -11,13 +11,14 @@ jobs:
         contains(github.event.comment.body, '@gitbot squash')
       ) &&
       (
-        github.event.comment.author.login == github.event.issue.pull_request.head.repo.owner.login ||
-        github.event.comment.author.login == github.event.issue.pull_request.base.repo.owner.login
+        github.event.comment.user.id == github.event.repository.owner.id ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.user.id == github.event.issue.user.id
       )
     name: Rebase
     runs-on: ubuntu-20.04
     steps:
-      - uses: hmarr/debug-action@v2
+      - run: echo ${{ github.event }}
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v3
         with:
