@@ -21,7 +21,7 @@ jobs:
       - name: 🧬 Automatic Rebase
         uses: cirrus-actions/rebase@1.7
         with:
-          auto-squash: ${{ github.event.comment.body | contains('/autosquash') }}
+          auto-squash: ${{ contains(github.event.comment.body, '/autosquash') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
