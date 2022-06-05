@@ -1,0 +1,27 @@
+name: 🧬 Automatic Rebase
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  rebase:
+    if: >-
+      github.event.issue.pull_request != '' &&
+      (
+        contains(github.event.comment.body, '/rebase') ||
+        contains(github.event.comment.body, '/autosquash')
+      )
+    name: Rebase
+    runs-on: ubuntu-20.04
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: 🧬 Automatic Rebase
+        uses: cirrus-actions/rebase@1.7
+        with:
+          auto-squash: ${{ github.event.comment.body | contains('/autosquash') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
