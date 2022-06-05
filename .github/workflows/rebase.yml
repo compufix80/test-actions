@@ -7,12 +7,17 @@ jobs:
     if: >-
       github.event.issue.pull_request != '' &&
       (
-        contains(github.event.comment.body, '/rebase') ||
-        contains(github.event.comment.body, '/autosquash')
+        contains(github.event.comment.body, '@gitbot rebase') ||
+        contains(github.event.comment.body, '@gitbot squash')
+      ) &&
+      (
+        github.event.comment.author.login == github.event.issue.pull_request.head.repo.owner.login ||
+        github.event.comment.author.login == github.event.issue.pull_request.base.repo.owner.login
       )
     name: Rebase
     runs-on: ubuntu-20.04
     steps:
+      - run: echo ${{ github.event }}
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v3
         with:
@@ -21,7 +26,6 @@ jobs:
       - name: 🧬 Automatic Rebase
         uses: cirrus-actions/rebase@1.7
         with:
-          autosquash: ${{ contains(github.event.comment.body, '/autosquash') }}
+          autosquash: ${{ contains(github.event.comment.body, '@gitbot squash') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
