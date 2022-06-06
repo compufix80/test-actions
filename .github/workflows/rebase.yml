@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🧬 Rebase or Squash
-        id: rebase-squash
+        id: rebase_squash
         uses: cirrus-actions/rebase@1.7
         with:
           autosquash: ${{ contains(github.event.comment.body, '@gitbot squash') }}
@@ -43,7 +43,11 @@ jobs:
           reactions: "+1"
 
       - name: 💬 Reply comment
-        if: contains(steps.rebase-squash.output, 'Everything up-to-date')
+        if: >-
+          contains(
+            join(steps.rebase_squash.output.*, '\n'),
+            'Everything up-to-date'
+          )
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.issue.number }}
