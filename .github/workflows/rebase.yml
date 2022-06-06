@@ -8,6 +8,9 @@ on:
         contains(github.event.comment.body, '@gitbot squash')
       )
     types: [created]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.id }}
+
 jobs:
   rebase-squash:
     if: >-
@@ -54,7 +57,7 @@ jobs:
           body: |
             ### Everything up-to-date 🎉
             @${{ github.event.comment.user.login }} Everything up-to-date.
-      - run: echo ${{steps.rebase_squash.outputs.*}}
+      - run: echo ${{join(steps.rebase_squash.outputs.*, '\n')}}
   permission-denied:
     needs: [rebase-squash]
     if: |
