@@ -1,7 +1,7 @@
 name: 🧬 Automatic Rebase
 on:
   issue_comment:
-    if: |-
+    if: >-
       github.event.issue.pull_request != '' &&
       (
         contains(github.event.comment.body, '@gitbot rebase') ||
@@ -10,7 +10,7 @@ on:
     types: [created]
 jobs:
   rebase-squash:
-    if: |-
+    if: >-
       (
         github.event.comment.user.id == github.event.repository.owner.id ||
         github.event.comment.author_association == 'MEMBER' ||
