@@ -37,7 +37,7 @@ jobs:
   permission-approved:
     needs: [catch-comment]
     name: ✅ Permission approved
-    if: jobs.catch-comment.outputs.permission == 'true'
+    if: needs.catch-comment.outputs.permission == 'true'
     runs-on: ubuntu-20.04
     steps:
       - name: ⤵️ Check out code from GitHub
@@ -64,7 +64,7 @@ jobs:
   permission-denied:
     needs: [catch-comment]
     name: ⛔ Permission denied
-    if: jobs.catch-comment.outputs.permission == 'false'
+    if: needs.catch-comment.outputs.permission == 'false'
     runs-on: ubuntu-22.04
     steps:
       - name: 💬 Reply comment
