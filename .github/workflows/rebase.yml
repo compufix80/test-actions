@@ -16,40 +16,47 @@ jobs:
         github.event.comment.author_association == 'MEMBER' ||
         github.event.comment.user.id == github.event.issue.user.id
       )
-    name: Rebase
     runs-on: ubuntu-20.04
     steps:
-      - run: echo ${{ github.event }}
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-      - name: 🧬 Automatic Rebase
+
+      - name: 🧬 Rebase or Squash
         uses: cirrus-actions/rebase@1.7
         with:
           autosquash: ${{ contains(github.event.comment.body, '@gitbot squash') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  report-abuse:
-    if: >-
-      !(
-        github.event.comment.user.id == github.event.repository.owner.id ||
-        github.event.comment.author_association == 'MEMBER' ||
-        github.event.comment.user.id == github.event.issue.user.id
-      )
-    name: Report Abuse
+
+      - name: 👍 Reaction to comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          reactions: "+1"
+
+  permission-denied:
+    needs: [rebase-squash]
+    if: needs.rebase-squash.result == 'skipped'
     runs-on: ubuntu-22.04
+    name: ⛔ Permission denied
     steps:
-      - name: Create comment
+      - name: 💬 Reply comment
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.issue.number }}
           body: |
+            ⛔ Permission denied
             @${{ github.event.comment.user.login }} this functionality is not available to you.
-            Please contact the owner of the repository to request access.
-      - name: Rection comment
+            To use this functionality you must meet at least one of the following requirements:
+            - [ ] Be the owner  of the repository
+            - [ ] Be a   member of the organization
+            - [ ] Be the author of the pull request
+
+      - name: 👎 Reaction to comment
         uses: peter-evans/create-or-update-comment@v2
         with:
           comment-id: ${{ github.event.comment.id }}
-          reactions: '-1'
+          reactions: "-1"
