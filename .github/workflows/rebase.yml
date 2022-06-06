@@ -4,10 +4,11 @@ on:
     if: >-
       github.event.issue.pull_request != '' &&
       (
-        contains(github.event.comment.body, '@gitbot rebase') ||
-        contains(github.event.comment.body, '@gitbot squash')
+        contains(github.event.comment.body, "@gitbot rebase") ||
+        contains(github.event.comment.body, "@gitbot squash")
       )
     types: [created]
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.id }}
 
@@ -45,7 +46,7 @@ jobs:
         id: rebase-squash
         uses: cirrus-actions/rebase@1.7
         with:
-          autosquash: ${{ contains(github.event.comment.body, '@gitbot squash') }}
+          autosquash: ${{ contains(github.event.comment.body, "@gitbot squash") }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
