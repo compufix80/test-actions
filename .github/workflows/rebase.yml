@@ -67,6 +67,13 @@ jobs:
     if: needs.catch-comment.outputs.permission == 'false'
     runs-on: ubuntu-22.04
     steps:
+      - name: 👎 Reaction to comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          reactions: "-1"
+          edit-mode: replace
+
       - name: 💬 Reply comment
         uses: peter-evans/create-or-update-comment@v2
         with:
@@ -81,10 +88,3 @@ jobs:
             - [ ] Be a   member of the organization
             - [ ] Be on the assignees list
             - [ ] Be the author of the pull request
-
-      - name: 👎 Reaction to comment
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          comment-id: ${{ github.event.comment.id }}
-          reactions: "-1"
-          edit-mode: replace
