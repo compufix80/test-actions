@@ -1,7 +1,7 @@
 name: 🧬 Automatic Rebase
 on:
   issue_comment:
-    if: >-
+    if: |
       github.event.issue.pull_request != '' &&
       (
         contains(github.event.comment.body, '@gitbot rebase') ||
@@ -10,16 +10,17 @@ on:
     types: [created]
 jobs:
   rebase-squash:
-    if: >-
+    if: |
       (
         github.event.comment.user.id == github.event.repository.owner.id ||
         github.event.comment.author_association == 'MEMBER' ||
         github.event.comment.user.id == github.event.issue.user.id
       )
     runs-on: ubuntu-20.04
+    name: 🧬 Rebase or Squash
     steps:
       - uses: hmarr/debug-action@v2
-      
+
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v3
         with:
@@ -41,7 +42,9 @@ jobs:
 
   permission-denied:
     needs: [rebase-squash]
-    if: needs.rebase-squash.result == 'skipped'
+    if: |
+      always() &&
+      needs.rebase-squash.result == 'skipped'
     runs-on: ubuntu-22.04
     name: ⛔ Permission denied
     steps:
