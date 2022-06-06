@@ -15,6 +15,8 @@ jobs:
         contains(github.event.comment.body, '@gitbot squash')
       )
     runs-on: ubuntu-20.04
+    outputs:
+      permission: ${{ steps.check-permissions.outputs.permission }}
     steps:
       - name: 👀 Reaction to comment
         uses: peter-evans/create-or-update-comment@v2
@@ -24,7 +26,7 @@ jobs:
       - name: 🛂 Check permissions
         id: check-permissions
         run: >-
-          echo "::set-output name=permissions::${{(
+          echo "::set-output name=permission::${{(
             github.event.comment.user.id == github.event.repository.owner.id ||
             github.event.comment.author_association == 'MEMBER' ||
             contains(github.event.issue.assignees.*.id, github.event.comment.user.id) ||
@@ -32,16 +34,12 @@ jobs:
           )}}"
       - uses: hmarr/debug-action@v2
 
-  rebase-squash:
+  permission-approved:
     needs: [catch-comment]
-    name: 🧬 Rebase or Squash
-    #if: needs.catch-comment.outputs.permissions == 'true'
+    name: ✅ Permission approved
+    if: needs.catch-comment.outputs.permission == 'true'
     runs-on: ubuntu-20.04
-    outputs:
-      rebase-squash: ${{ steps.rebase-squash.outputs.output }}
     steps:
-      - run: echo ${{needs.catch-comment.outputs.output1}}
-
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v3
         with:
@@ -66,7 +64,7 @@ jobs:
   permission-denied:
     needs: [catch-comment]
     name: ⛔ Permission denied
-    if: needs.catch-comment.outputs.permissions == 'false'
+    if: needs.catch-comment.outputs.permission == 'false'
     runs-on: ubuntu-22.04
     steps:
       - name: 💬 Reply comment
