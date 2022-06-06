@@ -29,6 +29,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🧬 Rebase or Squash
+        id: rebase-squash
         uses: cirrus-actions/rebase@1.7
         with:
           autosquash: ${{ contains(github.event.comment.body, '@gitbot squash') }}
@@ -41,6 +42,15 @@ jobs:
           comment-id: ${{ github.event.comment.id }}
           reactions: "+1"
 
+      - name: 💬 Reply comment
+        if: contains(steps.rebase-squash.output, 'Everything up-to-date')
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ### Everything up-to-date 🎉
+            @${{ github.event.comment.user.login }} Everything up-to-date.
+
   permission-denied:
     needs: [rebase-squash]
     if: |
@@ -49,11 +59,6 @@ jobs:
     runs-on: ubuntu-22.04
     name: ⛔ Permission denied
     steps:
-      - run: |
-          echo ${{ contains(github.event.issue.assignees.*.id, 5098513) }}
-
-      - uses: hmarr/debug-action@v2
-
       - name: 💬 Reply comment
         uses: peter-evans/create-or-update-comment@v2
         with:
