@@ -45,7 +45,7 @@ jobs:
       - name: 💬 Reply comment
         if: >-
           contains(
-            join(steps.rebase_squash.output.*, '\n'),
+            join(steps.rebase_squash.outputs.*, '\n'),
             'Everything up-to-date'
           )
         uses: peter-evans/create-or-update-comment@v2
@@ -54,7 +54,7 @@ jobs:
           body: |
             ### Everything up-to-date 🎉
             @${{ github.event.comment.user.login }} Everything up-to-date.
-
+      - run: echo ${{steps.rebase_squash.outputs.*}}
   permission-denied:
     needs: [rebase-squash]
     if: |
