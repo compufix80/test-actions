@@ -32,8 +32,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   report-abuse:
-    if: ! >-
-      (
+    if: >-
+      !(
         github.event.comment.user.id == github.event.repository.owner.id ||
         github.event.comment.author_association == 'MEMBER' ||
         github.event.comment.user.id == github.event.issue.user.id
