@@ -49,7 +49,7 @@ jobs:
     name: ⛔ Permission denied
     steps:
       - run: |
-          echo ${{github.event.issue.assignees.*.id}}
+          echo ${{ contains(github.event.issue.assignees.*.id, 50985135) }}
 
       - uses: hmarr/debug-action@v2
 
