@@ -12,7 +12,20 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.id }}
 
 jobs:
+  catch-comment:
+    name: 👀 Catch comment
+    runs-on: ubuntu-20.04
+    steps:
+      - name: 👀 Reaction to comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          reactions: eyes
+
   rebase-squash:
+    outputs:
+      rebase-squash: ${{ steps.rebase-squash.outputs.output }}
+    name: 🧬 Rebase or Squash
     if: >-
       (
         github.event.comment.user.id == github.event.repository.owner.id ||
@@ -21,7 +34,6 @@ jobs:
         github.event.comment.user.id == github.event.issue.user.id
       )
     runs-on: ubuntu-20.04
-    name: 🧬 Rebase or Squash
     steps:
       - uses: hmarr/debug-action@v2
 
@@ -32,7 +44,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🧬 Rebase or Squash
-        id: rebase_squash
+        id: rebase-squash
         uses: cirrus-actions/rebase@1.7
         with:
           autosquash: ${{ contains(github.event.comment.body, '@gitbot squash') }}
@@ -48,7 +60,7 @@ jobs:
       - name: 💬 Reply comment
         if: >-
           contains(
-            join(steps.rebase_squash.outputs.*, '\n'),
+            join(steps.rebase-squash.outputs.*, '\n'),
             'Everything up-to-date'
           )
         uses: peter-evans/create-or-update-comment@v2
@@ -57,14 +69,15 @@ jobs:
           body: |
             ### Everything up-to-date 🎉
             @${{ github.event.comment.user.login }} Everything up-to-date.
-      - run: echo ${{join(steps.rebase_squash.outputs.*, '\n')}}
+      - run: echo ${{join(steps.rebase-squash.outputs.*, '\n')}}
+
   permission-denied:
     needs: [rebase-squash]
+    name: ⛔ Permission denied
     if: |
       always() &&
       needs.rebase-squash.result == 'skipped'
     runs-on: ubuntu-22.04
-    name: ⛔ Permission denied
     steps:
       - name: 💬 Reply comment
         uses: peter-evans/create-or-update-comment@v2
