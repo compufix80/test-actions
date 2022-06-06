@@ -24,14 +24,12 @@ jobs:
       - name: 🛂 Check permissions
         id: check-permissions
         run: >-
-          echo "::set-output name=permissions::
-          ${{(
+          echo "::set-output name=permissions::${{(
             github.event.comment.user.id == github.event.repository.owner.id ||
             github.event.comment.author_association == 'MEMBER' ||
             contains(github.event.issue.assignees.*.id, github.event.comment.user.id) ||
             github.event.comment.user.id == github.event.issue.user.id
-          )}}
-          "
+          )}}"
   rebase-squash:
     needs: [catch-comment]
     name: 🧬 Rebase or Squash
