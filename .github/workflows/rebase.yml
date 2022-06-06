@@ -14,6 +14,7 @@ jobs:
       (
         github.event.comment.user.id == github.event.repository.owner.id ||
         github.event.comment.author_association == 'MEMBER' ||
+        github.event.issue.as
         github.event.comment.user.id == github.event.issue.user.id
       )
     runs-on: ubuntu-20.04
@@ -48,6 +49,9 @@ jobs:
     runs-on: ubuntu-22.04
     name: ⛔ Permission denied
     steps:
+      - run: |
+          echo ${{github.event.issue.assignees.*.id}}
+
       - uses: hmarr/debug-action@v2
 
       - name: 💬 Reply comment
@@ -55,9 +59,11 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           body: |
-            ⛔ Permission denied
+            ### Permission denied ⛔
+
             @${{ github.event.comment.user.login }} this functionality is not available to you.
             To use this functionality you must meet at least one of the following requirements:
+
             - [ ] Be the owner  of the repository
             - [ ] Be a   member of the organization
             - [ ] Be the author of the pull request
