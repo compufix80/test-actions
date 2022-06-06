@@ -14,7 +14,6 @@ jobs:
       (
         github.event.comment.user.id == github.event.repository.owner.id ||
         github.event.comment.author_association == 'MEMBER' ||
-        github.event.issue.as
         github.event.comment.user.id == github.event.issue.user.id
       )
     runs-on: ubuntu-20.04
