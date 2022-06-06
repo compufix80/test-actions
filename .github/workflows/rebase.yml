@@ -58,10 +58,11 @@ jobs:
           edit-mode: replace
 
   permission-denied:
-    needs: [rebase-squash]
+    needs: [catch-comment, rebase-squash]
     name: ⛔ Permission denied
     if: |
       always() &&
+      needs.catch-comment.result != 'skipped' &&
       needs.rebase-squash.result == 'skipped'
     runs-on: ubuntu-22.04
     steps:
