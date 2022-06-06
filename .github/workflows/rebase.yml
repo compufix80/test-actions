@@ -23,8 +23,6 @@ jobs:
           reactions: eyes
 
   rebase-squash:
-    outputs:
-      rebase-squash: ${{ steps.rebase-squash.outputs.output }}
     name: 🧬 Rebase or Squash
     if: >-
       (
@@ -34,9 +32,9 @@ jobs:
         github.event.comment.user.id == github.event.issue.user.id
       )
     runs-on: ubuntu-20.04
+    outputs:
+      rebase-squash: ${{ steps.rebase-squash.outputs.output }}
     steps:
-      - uses: hmarr/debug-action@v2
-
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v3
         with:
@@ -56,20 +54,7 @@ jobs:
         with:
           comment-id: ${{ github.event.comment.id }}
           reactions: "+1"
-
-      - name: 💬 Reply comment
-        if: >-
-          contains(
-            join(steps.rebase-squash.outputs.*, '\n'),
-            'Everything up-to-date'
-          )
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            ### Everything up-to-date 🎉
-            @${{ github.event.comment.user.login }} Everything up-to-date.
-      - run: echo ${{join(steps.rebase-squash.outputs.*, '\n')}}
+          edit-mode: replace
 
   permission-denied:
     needs: [rebase-squash]
@@ -99,3 +84,4 @@ jobs:
         with:
           comment-id: ${{ github.event.comment.id }}
           reactions: "-1"
+          edit-mode: replace
