@@ -4,8 +4,8 @@ on:
     if: >-
       github.event.issue.pull_request != '' &&
       (
-        contains(github.event.comment.body, "@gitbot rebase") ||
-        contains(github.event.comment.body, "@gitbot squash")
+        contains(github.event.comment.body.*, "@gitbot rebase") ||
+        contains(github.event.comment.body.*, "@gitbot squash")
       )
     types: [created]
 
