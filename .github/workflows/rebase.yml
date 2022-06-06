@@ -21,21 +21,27 @@ jobs:
         with:
           comment-id: ${{ github.event.comment.id }}
           reactions: eyes
-
+      - name: 🛂 Check permissions
+        id: check-permissions
+        run: >-
+          echo "::set-output name=permissions::
+          ${{(
+            github.event.comment.user.id == github.event.repository.owner.id ||
+            github.event.comment.author_association == 'MEMBER' ||
+            contains(github.event.issue.assignees.*.id, github.event.comment.user.id) ||
+            github.event.comment.user.id == github.event.issue.user.id
+          )}}
+          "
   rebase-squash:
     needs: [catch-comment]
     name: 🧬 Rebase or Squash
-    if: >-
-      (
-        github.event.comment.user.id == github.event.repository.owner.id ||
-        github.event.comment.author_association == 'MEMBER' ||
-        contains(github.event.issue.assignees.*.id, github.event.comment.user.id) ||
-        github.event.comment.user.id == github.event.issue.user.id
-      )
+    if: needs.catch-comment.outputs.permissions == 'true'
     runs-on: ubuntu-20.04
     outputs:
       rebase-squash: ${{ steps.rebase-squash.outputs.output }}
     steps:
+      - uses: hmarr/debug-action@v2
+
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v3
         with:
@@ -58,12 +64,9 @@ jobs:
           edit-mode: replace
 
   permission-denied:
-    needs: [catch-comment, rebase-squash]
+    needs: [catch-comment]
     name: ⛔ Permission denied
-    if: |
-      always() &&
-      needs.catch-comment.result != 'skipped' &&
-      needs.rebase-squash.result == 'skipped'
+    if: needs.catch-comment.outputs.permissions == 'false'
     runs-on: ubuntu-22.04
     steps:
       - name: 💬 Reply comment
