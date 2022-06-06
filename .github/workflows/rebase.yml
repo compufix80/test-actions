@@ -3,18 +3,25 @@ on:
   issue_comment:
     types: [created]
 jobs:
-  rebase:
+  check-comment:
     if: >-
       github.event.issue.pull_request != '' &&
       (
         contains(github.event.comment.body, '@gitbot rebase') ||
         contains(github.event.comment.body, '@gitbot squash')
-      ) &&
+      )
+    runs-on: ubuntu-22.04
+  check-user:
+    needs: [check-comment]
+    if: >-
       (
         github.event.comment.user.id == github.event.repository.owner.id ||
         github.event.comment.author_association == 'MEMBER' ||
         github.event.comment.user.id == github.event.issue.user.id
       )
+    runs-on: ubuntu-22.04
+  rebase-squash:
+    needs: [check-user]
     name: Rebase
     runs-on: ubuntu-20.04
     steps:
@@ -30,3 +37,9 @@ jobs:
           autosquash: ${{ contains(github.event.comment.body, '@gitbot squash') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  report-abuse:
+    if: ${{ check-user.skipped }}
+    name: Report Abuse
+    runs-on: ubuntu-22.04
+    steps:
+      - run: echo ''
