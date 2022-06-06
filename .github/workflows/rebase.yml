@@ -2,18 +2,18 @@ name: 🧬 Automatic Rebase
 on:
   issue_comment:
     types: [created]
-    if: >-
-      github.event.issue.pull_request != '' &&
-      (
-        contains(github.event.comment.body, '@gitbot rebase') ||
-        contains(github.event.comment.body, '@gitbot squash')
-      )
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.id }}
 
 jobs:
   catch-comment:
     name: 👀 Catch comment
+    if: >-
+      github.event.issue.pull_request != '' &&
+      (
+        contains(github.event.comment.body, '@gitbot rebase') ||
+        contains(github.event.comment.body, '@gitbot squash')
+      )
     runs-on: ubuntu-20.04
     steps:
       - name: 👀 Reaction to comment
@@ -23,7 +23,7 @@ jobs:
           reactions: eyes
 
   rebase-squash:
-    needs: catch-comment
+    needs: [catch-comment]
     name: 🧬 Rebase or Squash
     if: >-
       (
@@ -58,7 +58,7 @@ jobs:
           edit-mode: replace
 
   permission-denied:
-    needs: rebase-squash
+    needs: [rebase-squash]
     name: ⛔ Permission denied
     if: |
       always() &&
