@@ -48,4 +48,7 @@ jobs:
           body: |
             @${{ github.event.comment.user.login }} this functionality is not available to you.
             Please contact the owner of the repository to request access.
-          reactions: "-1"
+      - name: Rection comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ github.event.comment.id }}
